@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Xtra System | Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#060614;--surface:#0b0b20;--card:#0f0f28;--card2:#13132e;--border:rgba(88,101,242,0.18);--accent:#5865F2;--accent2:#00d4ff;--accent3:#7c3aed;--green:#57f287;--red:#ed4245;--yellow:#fee75c;--orange:#f5a742;--text:#e8eaf6;--muted:#6b7280;--glow:rgba(88,101,242,0.35);--sidebar-w:265px;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--accent);border-radius:3px;}
+.bg-grid{position:fixed;inset:0;background-image:linear-gradient(rgba(88,101,242,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(88,101,242,0.04) 1px,transparent 1px);background-size:40px 40px;z-index:0;pointer-events:none;}
+
+/* SERVERS */
+#serversPage{display:none;min-height:100vh;padding:40px 20px;position:relative;z-index:1;}
+.srv-header{text-align:center;margin-bottom:36px;}
+.srv-header h1{font-family:'Orbitron',monospace;font-size:1.8rem;font-weight:900;background:linear-gradient(135deg,var(--text),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:6px;}
+.user-bar{display:flex;align-items:center;gap:10px;justify-content:center;margin-bottom:24px;flex-wrap:wrap;}
+.srv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;max-width:1100px;margin:0 auto;}
+.srv-card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:22px;text-align:center;transition:all 0.3s;position:relative;overflow:hidden;}
+.srv-card:hover{border-color:rgba(88,101,242,0.5);transform:translateY(-5px);box-shadow:0 15px 40px rgba(0,0,0,0.3);}
+.srv-icon{width:62px;height:62px;border-radius:50%;margin:0 auto 10px;object-fit:cover;border:2px solid var(--border);}
+.srv-icon-ph{width:62px;height:62px;border-radius:50%;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:900;border:2px solid var(--border);}
+.srv-name{font-weight:700;font-size:0.93rem;margin-bottom:4px;}
+.srv-members{color:var(--muted);font-size:0.8rem;margin-bottom:12px;}
+.prem-badge{position:absolute;top:10px;left:10px;background:linear-gradient(135deg,#f5a742,#fee75c);color:#000;font-size:0.62rem;font-weight:900;padding:2px 8px;border-radius:999px;}
+.bot-badge{display:inline-flex;align-items:center;gap:4px;font-size:0.76rem;padding:3px 10px;border-radius:999px;margin-bottom:10px;}
+.bot-on{background:rgba(87,242,135,0.1);color:var(--green);border:1px solid rgba(87,242,135,0.25);}
+.bot-off{background:rgba(107,114,128,0.1);color:var(--muted);border:1px solid var(--border);}
+.btn-manage{display:block;padding:9px;background:linear-gradient(135deg,var(--accent),var(--accent3));border-radius:10px;color:white;font-family:'Tajawal',sans-serif;font-weight:700;font-size:0.85rem;border:none;cursor:pointer;width:100%;transition:all 0.3s;}
+.btn-manage:hover{transform:scale(1.02);box-shadow:0 6px 20px var(--glow);}
+.btn-add{display:block;padding:9px;background:transparent;border:2px solid var(--border);border-radius:10px;color:var(--muted);font-family:'Tajawal',sans-serif;font-weight:700;font-size:0.85rem;cursor:pointer;width:100%;transition:all 0.3s;text-decoration:none;text-align:center;}
+.btn-add:hover{border-color:var(--accent);color:var(--accent2);}
+
+/* DASHBOARD */
+#dashPage{display:none;min-height:100vh;}
+.sidebar{position:fixed;top:0;right:0;width:var(--sidebar-w);height:100vh;background:var(--surface);border-left:1px solid var(--border);z-index:100;display:flex;flex-direction:column;overflow-y:auto;transition:transform 0.3s;}
+.sb-logo{padding:20px 16px;border-bottom:1px solid var(--border);}
+.logo-txt{font-family:'Orbitron',monospace;font-size:1rem;font-weight:900;background:linear-gradient(135deg,var(--accent2),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.sb-server{display:flex;align-items:center;gap:9px;padding:13px 16px;border-bottom:1px solid var(--border);cursor:pointer;}
+.sb-server:hover{background:rgba(88,101,242,0.05);}
+.sb-srv-icon{width:32px;height:32px;border-radius:8px;object-fit:cover;flex-shrink:0;}
+.sb-srv-icon-ph{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:0.85rem;font-weight:700;flex-shrink:0;}
+.sb-srv-info{flex:1;overflow:hidden;}
+.sb-srv-name{font-size:0.82rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.sb-srv-change{font-size:0.68rem;color:var(--muted);}
+.sb-nav{flex:1;padding:12px 8px;}
+.nav-sec{color:var(--muted);font-size:0.65rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:7px 10px;margin-top:6px;}
+.ni{display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:10px;cursor:pointer;transition:all 0.2s;color:var(--muted);font-size:0.85rem;font-weight:500;}
+.ni:hover{background:rgba(88,101,242,0.08);color:var(--text);}
+.ni.active{background:linear-gradient(135deg,rgba(88,101,242,0.22),rgba(124,58,237,0.12));color:var(--accent2);border:1px solid rgba(88,101,242,0.18);}
+.ni .ic{font-size:0.95rem;width:19px;text-align:center;}
+.ni-gold{background:linear-gradient(135deg,rgba(245,167,66,0.12),rgba(254,231,92,0.06));color:#f5a742;border:1px solid rgba(245,167,66,0.18);}
+.ni-admin{background:linear-gradient(135deg,rgba(237,66,69,0.1),rgba(237,66,69,0.05));color:var(--red);border:1px solid rgba(237,66,69,0.15);}
+.sb-user{padding:13px 16px;border-top:1px solid var(--border);display:flex;align-items:center;gap:9px;}
+.sb-av{width:30px;height:30px;border-radius:50%;object-fit:cover;}
+.sb-av-ph{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent3));display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;}
+.sb-uname{font-size:0.8rem;font-weight:600;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.btn-logout{background:none;border:none;color:var(--muted);cursor:pointer;font-size:0.95rem;}
+.btn-logout:hover{color:var(--red);}
+
+.main{margin-right:var(--sidebar-w);min-height:100vh;padding:26px 30px;position:relative;z-index:1;}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;}
+.page-title{font-family:'Orbitron',monospace;font-size:1.2rem;font-weight:900;background:linear-gradient(135deg,var(--text),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.plan-badge{padding:6px 13px;border-radius:999px;font-size:0.78rem;font-weight:700;}
+.plan-free{background:rgba(107,114,128,0.15);border:1px solid rgba(107,114,128,0.2);color:var(--muted);}
+.plan-prem{background:linear-gradient(135deg,rgba(245,167,66,0.2),rgba(254,231,92,0.1));border:1px solid rgba(245,167,66,0.4);color:#f5a742;}
+
+/* PANELS */
+.panel{display:none;animation:fadeUp 0.3s ease;}
+.panel.active{display:block;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+
+/* CARDS */
+.card{background:var(--card);border:1px solid var(--border);border-radius:15px;padding:22px;margin-bottom:18px;}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+.card-header h3{font-weight:700;font-size:0.97rem;display:flex;align-items:center;gap:7px;}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:18px;}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:13px;padding:18px;display:flex;align-items:center;gap:12px;transition:all 0.3s;}
+.stat-card:hover{border-color:rgba(88,101,242,0.4);transform:translateY(-2px);}
+.stat-icon{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;}
+.stat-num{font-family:'Orbitron',monospace;font-size:1.4rem;font-weight:900;}
+.stat-label{color:var(--muted);font-size:0.78rem;}
+
+/* TOGGLE */
+.tr{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border);}
+.tr:last-child{border-bottom:none;}
+.tl .name{font-weight:600;font-size:0.9rem;}
+.tl .desc{color:var(--muted);font-size:0.78rem;margin-top:1px;}
+.toggle{position:relative;width:42px;height:22px;flex-shrink:0;}
+.toggle input{opacity:0;width:0;height:0;}
+.ts{position:absolute;inset:0;background:rgba(107,114,128,0.35);border-radius:999px;cursor:pointer;transition:all 0.3s;}
+.ts::before{content:'';position:absolute;width:16px;height:16px;background:white;border-radius:50%;top:3px;right:3px;transition:all 0.3s;}
+.toggle input:checked+.ts{background:linear-gradient(135deg,var(--accent),var(--accent3));}
+.toggle input:checked+.ts::before{right:auto;left:3px;}
+
+/* FORM */
+.fg{margin-bottom:16px;}
+.fl{display:block;font-size:0.86rem;font-weight:600;margin-bottom:6px;}
+.fl small{color:var(--muted);font-weight:400;}
+.fi,.fs,.fta{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:10px 13px;color:var(--text);font-family:'Tajawal',sans-serif;font-size:0.9rem;outline:none;transition:all 0.3s;}
+.fi:focus,.fs:focus,.fta:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(88,101,242,0.1);}
+.fs option{background:var(--card2);}
+.fta{min-height:85px;resize:vertical;}
+.fg2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+
+/* BUTTONS */
+.btn{padding:9px 18px;border-radius:10px;font-family:'Tajawal',sans-serif;font-size:0.88rem;font-weight:700;cursor:pointer;border:none;transition:all 0.25s;display:inline-flex;align-items:center;gap:6px;}
+.btn-p{background:linear-gradient(135deg,var(--accent),var(--accent3));color:white;box-shadow:0 4px 15px var(--glow);}
+.btn-p:hover{transform:translateY(-2px);}
+.btn-d{background:rgba(237,66,69,0.12);color:var(--red);border:1px solid rgba(237,66,69,0.25);}
+.btn-g{background:transparent;color:var(--muted);border:1px solid var(--border);}
+.btn-g:hover{border-color:var(--accent);color:var(--text);}
+.btn-s{padding:6px 12px;font-size:0.78rem;}
+.btn-gold{background:linear-gradient(135deg,#f5a742,#fee75c);color:#000;}
+.btn-gold:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(245,167,66,0.4);}
+.btn-green{background:rgba(87,242,135,0.12);color:var(--green);border:1px solid rgba(87,242,135,0.25);}
+
+/* AR */
+.ar-list{display:flex;flex-direction:column;gap:9px;margin-bottom:14px;}
+.ar-item{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:12px;display:flex;gap:9px;align-items:center;}
+.ar-trig{background:rgba(0,212,255,0.1);color:var(--accent2);padding:3px 9px;border-radius:7px;font-size:0.75rem;font-weight:600;white-space:nowrap;flex-shrink:0;}
+.ar-resp{color:var(--muted);font-size:0.82rem;flex:1;}
+.ar-del{background:none;border:none;color:var(--red);cursor:pointer;}
+
+/* LOGS GRID */
+.logs-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.log-item{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:12px;display:flex;justify-content:space-between;align-items:center;font-size:0.85rem;font-weight:600;}
+
+/* PREMIUM PAGE */
+.prem-hero{text-align:center;padding:36px 20px;background:linear-gradient(135deg,rgba(245,167,66,0.07),rgba(254,231,92,0.03));border:1px solid rgba(245,167,66,0.2);border-radius:18px;margin-bottom:22px;}
+.plans-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
+.plan-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:26px;text-align:center;transition:all 0.3s;}
+.plan-card:hover{transform:translateY(-5px);}
+.plan-card.feat{border-color:rgba(245,167,66,0.4);}
+.plan-name{font-family:'Orbitron',monospace;font-size:1rem;font-weight:900;margin-bottom:5px;}
+.plan-price{font-size:2rem;font-weight:900;margin:12px 0 4px;}
+.plan-price span{font-size:0.85rem;color:var(--muted);}
+.plan-features{list-style:none;text-align:right;margin:14px 0;display:flex;flex-direction:column;gap:7px;}
+.plan-features li{display:flex;align-items:center;gap:6px;font-size:0.82rem;}
+.plan-features li.y{color:var(--text);}
+.plan-features li.y::before{content:'✓';color:var(--green);font-weight:700;}
+.plan-features li.n{color:var(--muted);}
+.plan-features li.n::before{content:'✕';color:var(--red);}
+
+/* PAYMENT */
+.payment-methods{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0;}
+.pm-card{background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center;cursor:pointer;transition:all 0.3s;}
+.pm-card:hover{border-color:var(--accent);transform:translateY(-3px);}
+.pm-icon{font-size:2rem;margin-bottom:8px;}
+.pm-name{font-weight:700;font-size:0.9rem;margin-bottom:4px;}
+.pm-desc{color:var(--muted);font-size:0.78rem;}
+
+/* CONTACT */
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.contact-card{background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center;transition:all 0.3s;text-decoration:none;color:var(--text);}
+.contact-card:hover{border-color:var(--accent2);transform:translateY(-4px);box-shadow:0 10px 30px rgba(0,0,0,0.2);}
+.contact-icon{font-size:2.5rem;margin-bottom:10px;}
+.contact-name{font-weight:700;font-size:1rem;margin-bottom:4px;}
+.contact-desc{color:var(--muted);font-size:0.82rem;}
+
+/* ADMIN */
+.admin-table{width:100%;border-collapse:separate;border-spacing:0;}
+.admin-table th{text-align:right;padding:10px 14px;color:var(--muted);font-size:0.75rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid var(--border);}
+.admin-table td{padding:12px 14px;border-bottom:1px solid rgba(88,101,242,0.06);font-size:0.86rem;vertical-align:middle;}
+.admin-table tr:last-child td{border-bottom:none;}
+.admin-table tr:hover td{background:rgba(88,101,242,0.03);}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+.modal{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:30px;max-width:440px;width:90%;position:relative;animation:fadeUp 0.3s ease;}
+.modal h3{font-size:1.1rem;font-weight:700;margin-bottom:16px;}
+.modal-close{position:absolute;top:16px;left:16px;background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer;}
+
+/* TOAST */
+.toast-wrap{position:fixed;bottom:22px;left:22px;z-index:9999;display:flex;flex-direction:column;gap:8px;}
+.toast{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:11px 16px;display:flex;align-items:center;gap:7px;font-size:0.85rem;font-weight:500;box-shadow:0 8px 25px rgba(0,0,0,0.3);animation:toastIn 0.3s ease;max-width:290px;}
+.toast.success{border-color:rgba(87,242,135,0.3);color:var(--green);}
+.toast.error{border-color:rgba(237,66,69,0.3);color:var(--red);}
+.toast.info{border-color:rgba(0,212,255,0.3);color:var(--accent2);}
+@keyframes toastIn{from{opacity:0;transform:translateX(-15px);}to{opacity:1;transform:translateX(0);}}
+.loading{display:flex;align-items:center;justify-content:center;padding:40px;color:var(--muted);}
+.spinner{width:26px;height:26px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;margin-left:10px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.divider{border:none;border-top:1px solid var(--border);margin:18px 0;}
+.tag{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:999px;font-size:0.75rem;font-weight:600;}
+.tag-green{background:rgba(87,242,135,0.1);color:var(--green);border:1px solid rgba(87,242,135,0.25);}
+.tag-yellow{background:rgba(254,231,92,0.1);color:var(--yellow);border:1px solid rgba(254,231,92,0.25);}
+.tag-red{background:rgba(237,66,69,0.1);color:var(--red);border:1px solid rgba(237,66,69,0.25);}
+.tag-blue{background:rgba(88,101,242,0.1);color:var(--accent2);border:1px solid rgba(88,101,242,0.25);}
+.save-bar{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;background:rgba(88,101,242,0.07);border:1px solid rgba(88,101,242,0.15);border-radius:11px;margin-top:18px;}
+.save-bar span{color:var(--muted);font-size:0.82rem;}
+
+@media(max-width:900px){
+  .sidebar{transform:translateX(100%);}.sidebar.open{transform:translateX(0);}
+  .main{margin-right:0;padding:15px;}
+  .plans-grid,.fg2,.logs-grid,.contact-grid,.payment-methods{grid-template-columns:1fr;}
+  .mob-btn{display:flex!important;}
+}
+.mob-btn{display:none;position:fixed;top:13px;right:13px;z-index:200;background:var(--card);border:1px solid var(--border);border-radius:9px;padding:8px;cursor:pointer;font-size:1rem;}
+
+/* COMMANDS GRID */
+.cmds-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;}
+.cmd-card{background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:14px;transition:all 0.2s;position:relative;}
+.cmd-card:hover{border-color:rgba(88,101,242,0.4);transform:translateY(-2px);}
+.cmd-name{display:inline-flex;align-items:center;gap:6px;background:rgba(88,101,242,0.12);border:1px solid rgba(88,101,242,0.25);border-radius:8px;padding:4px 10px;font-family:'Orbitron',monospace;font-size:0.72rem;font-weight:700;color:var(--accent2);margin-bottom:8px;}
+.cmd-desc{color:var(--text);font-size:0.84rem;font-weight:600;margin-bottom:4px;}
+.cmd-usage{color:var(--muted);font-size:0.77rem;font-family:'Orbitron',monospace;}
+.cmd-badge{position:absolute;top:10px;left:10px;font-size:0.6rem;font-weight:900;padding:2px 7px;border-radius:999px;}
+.cmd-badge-prem{background:linear-gradient(135deg,#f5a742,#fee75c);color:#000;}
+.cmd-badge-mod{background:rgba(237,66,69,0.15);color:var(--red);border:1px solid rgba(237,66,69,0.3);}
+.cmds-search{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:10px 14px;color:var(--text);font-family:'Tajawal',sans-serif;font-size:0.9rem;outline:none;transition:all 0.3s;margin-bottom:16px;}
+.cmds-search:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(88,101,242,0.1);}
+.cmd-cat{display:inline-flex;align-items:center;gap:4px;font-size:0.68rem;font-weight:700;padding:2px 8px;border-radius:999px;background:rgba(0,212,255,0.08);color:var(--accent2);border:1px solid rgba(0,212,255,0.2);}
+.cmd-card.editing{border-color:rgba(88,101,242,0.5);background:linear-gradient(135deg,rgba(88,101,242,0.05),rgba(0,212,255,0.02));}
+.cmd-edit-input{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:7px 11px;color:var(--text);font-family:'Tajawal',sans-serif;font-size:0.88rem;outline:none;transition:all 0.3s;width:100%;}
+.cmd-edit-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(88,101,242,0.1);}
+</style>
+</head>
+<body>
+<div class="bg-grid"></div>
+<div class="toast-wrap" id="toastWrap"></div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" style="display:none;">
+  <div class="modal" id="modalBox">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<!-- SERVERS PAGE -->
+<div id="serversPage">
+  <div class="srv-header">
+    <div class="user-bar" id="userBar"><div class="loading"><div class="spinner"></div></div></div>
+    <h1>⚡ اختر سيرفرك</h1>
+    <p style="color:var(--muted);">السيرفرات اللي عندك صلاحية إدارتها</p>
+  </div>
+  <div class="srv-grid" id="serversGrid"><div class="loading" style="grid-column:1/-1;"><div class="spinner"></div> جاري التحميل...</div></div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashPage">
+  <button class="mob-btn" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-logo"><div class="logo-txt">⚡ XTRA SYSTEM</div></div>
+    <div class="sb-server" onclick="goServers()">
+      <div id="sbIcon" class="sb-srv-icon-ph" style="background:linear-gradient(135deg,#5865F2,#7c3aed);">⚡</div>
+      <div class="sb-srv-info">
+        <div class="sb-srv-name" id="sbName">السيرفر</div>
+        <div class="sb-srv-change">← تغيير السيرفر</div>
+      </div>
+    </div>
+    <nav class="sb-nav">
+      <div class="nav-sec">عام</div>
+      <div class="ni active" onclick="showP('overview',this)"><span class="ic">📊</span> نظرة عامة</div>
+      <div class="nav-sec">الإعدادات</div>
+      <div class="ni" onclick="showP('prefix',this)"><span class="ic">⌨️</span> البرفكس والأوامر</div>
+      <div class="nav-sec">الحماية</div>
+      <div class="ni" onclick="showP('protection',this)"><span class="ic">🛡️</span> الحماية</div>
+      <div class="ni" onclick="showP('logs',this)"><span class="ic">📋</span> السجلات</div>
+      <div class="nav-sec">المجتمع</div>
+      <div class="ni" onclick="showP('welcome',this)"><span class="ic">👋</span> الترحيب والوداع</div>
+      <div class="ni" onclick="showP('autoresponse',this)"><span class="ic">🤖</span> الرد التلقائي</div>
+      <div class="ni" onclick="showP('ticket',this)"><span class="ic">🎫</span> نظام التذاكر</div>
+      <div class="ni" onclick="showP('suggestions',this)"><span class="ic">💡</span> الاقتراحات</div>
+      <div class="nav-sec">الأوامر</div>
+      <div class="ni" onclick="showP('mod_cmds',this)"><span class="ic">🔨</span> أوامر الإشراف</div>
+      <div class="ni" onclick="showP('gen_cmds',this)"><span class="ic">🎮</span> الأوامر العامة</div>
+      <div class="nav-sec">بريميوم ودعم</div>
+      <div class="ni ni-gold" onclick="showP('premium',this)"><span class="ic">👑</span> بريميوم</div>
+      <div class="ni" onclick="showP('contact',this)"><span class="ic">💬</span> التواصل والدعم</div>
+      <div class="ni ni-admin" id="adminNavItem" style="display:none;" onclick="showP('admin',this)"><span class="ic">🔧</span> لوحة الأدمن</div>
+    </nav>
+    <div style="display:flex;align-items:center;gap:9px;padding:12px 16px;background:linear-gradient(135deg,rgba(88,101,242,0.08),rgba(0,212,255,0.04));border-top:1px solid var(--border);">
+      <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#5865F2,#00d4ff);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:0.9rem;flex-shrink:0;">S</div>
+      <div style="flex:1;">
+        <div style="font-size:0.82rem;font-weight:700;background:linear-gradient(135deg,var(--accent2),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">STEVEN</div>
+        <div style="font-size:0.67rem;color:var(--muted);">👨‍💻 المطور الرئيسي</div>
+      </div>
+      <a href="https://discord.gg/HC8V8cPF4" target="_blank" style="background:rgba(88,101,242,0.15);border:1px solid rgba(88,101,242,0.25);border-radius:8px;padding:5px 8px;color:var(--accent2);font-size:0.75rem;font-weight:700;text-decoration:none;">💬 دعم</a>
+    </div>
+    <div class="sb-user">
+      <div id="sbAv" class="sb-av-ph">؟</div>
+      <div class="sb-uname" id="sbUname">...</div>
+      <button class="btn-logout" onclick="logout()">⏏</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div class="page-title" id="pageTitle">📊 نظرة عامة</div>
+      <div class="plan-badge plan-free" id="planBadge">⚡ Free</div>
+    </div>
+
+    <!-- ====== OVERVIEW ====== -->
+    <div class="panel active" id="panel-overview">
+      <div class="stats-grid" id="statsGrid"><div class="stat-card"><div class="stat-icon" style="background:rgba(88,101,242,0.15);">⏳</div><div><div class="stat-num">...</div><div class="stat-label">تحميل</div></div></div></div>
+      <div class="card"><div class="card-header"><h3>⚡ حالة البوت</h3></div><div id="overviewInfo" style="color:var(--muted);padding:16px 0;">جاري التحميل...</div></div>
+    </div>
+
+    <!-- ====== PREFIX ====== -->
+    <div class="panel" id="panel-prefix">
+      <div class="card">
+        <div class="card-header"><h3>⌨️ البرفكس والأوامر</h3><button class="btn btn-p btn-s" onclick="savePrefix()">💾 حفظ</button></div>
+        <div class="fg">
+          <label class="fl">البرفكس الحالي <small>(الرمز قبل الأمر مثل ! أو .)</small></label>
+          <input type="text" class="fi" id="prefixVal" placeholder="!" maxlength="5" style="max-width:120px;">
+        </div>
+        <div style="background:var(--card2);border-radius:10px;padding:14px;margin-top:6px;">
+          <p style="color:var(--muted);font-size:0.85rem;margin-bottom:8px;">📌 أمثلة على استخدام البرفكس:</p>
+          <div id="prefixExamples" style="display:flex;gap:8px;flex-wrap:wrap;">
+            <span class="tag tag-blue">!ban @user</span>
+            <span class="tag tag-blue">!kick @user سبب</span>
+            <span class="tag tag-blue">!mute @user 10m</span>
+            <span class="tag tag-blue">!warn @user</span>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="tr"><div class="tl"><div class="name">السماح بالأوامر بدون برفكس</div><div class="desc">يسمح بالأوامر بدون رمز مثل "ban" بدون "!"</div></div><label class="toggle"><input type="checkbox" id="noPrefixEnabled"><span class="ts"></span></label></div>
+        <div class="tr"><div class="tl"><div class="name">الأوامر Slash /</div><div class="desc">تفعيل أوامر السلاش الرسمية</div></div><label class="toggle"><input type="checkbox" id="slashEnabled" checked><span class="ts"></span></label></div>
+        <div class="tr"><div class="tl"><div class="name">حذف رسالة الأمر</div><div class="desc">حذف رسالة العضو بعد تنفيذ الأمر</div></div><label class="toggle"><input type="checkbox" id="deleteCmdMsg"><span class="ts"></span></label></div>
+      </div>
+    </div>
+
+    <!-- ====== PROTECTION ====== -->
+    <div class="panel" id="panel-protection">
+      <div class="card">
+        <div class="card-header"><h3>🛡️ الحماية</h3><button class="btn btn-p btn-s" onclick="saveProtection()">💾 حفظ</button></div>
+        <div id="protContent"><div class="loading"><div class="spinner"></div></div></div>
+      </div>
+    </div>
+
+    <!-- ====== LOGS ====== -->
+    <div class="panel" id="panel-logs">
+      <div class="card">
+        <div class="card-header"><h3>📋 السجلات</h3><button class="btn btn-p btn-s" onclick="saveLogs()">💾 حفظ</button></div>
+        <div id="logsContent"><div class="loading"><div class="spinner"></div></div></div>
+      </div>
+    </div>
+
+    <!-- ====== WELCOME ====== -->
+    <div class="panel" id="panel-welcome">
+      <div class="card">
+        <div class="card-header"><h3>👋 الترحيب والوداع</h3><button class="btn btn-p btn-s" onclick="saveWelcome()">💾 حفظ</button></div>
+        <div id="welcomeContent"><div class="loading"><div class="spinner"></div></div></div>
+      </div>
+    </div>
+
+    <!-- ====== AUTO RESPONSE ====== -->
+    <div class="panel" id="panel-autoresponse">
+      <div class="card">
+        <div class="card-header"><h3>🤖 الردود التلقائية</h3><button class="btn btn-p btn-s" onclick="showARForm()">+ إضافة</button></div>
+        <div class="ar-list" id="arList"></div>
+        <div id="arForm" style="display:none;background:var(--card2);border:1px solid var(--border);border-radius:11px;padding:16px;">
+          <div class="fg2">
+            <div class="fg"><label class="fl">الكلمة المشغِّلة</label><input type="text" class="fi" id="arTrigger" placeholder="مثال: مساعدة"></div>
+            <div class="fg"><label class="fl">نوع التشغيل</label><select class="fs" id="arType"><option value="contains">يحتوي على</option><option value="startsWith">يبدأ بـ</option><option value="exact">يساوي تماماً</option></select></div>
+          </div>
+          <div class="fg"><label class="fl">الرد</label><textarea class="fta" id="arResp" placeholder="نص الرد..."></textarea></div>
+          <div style="display:flex;gap:8px;"><button class="btn btn-p btn-s" onclick="addAR()">💾 حفظ</button><button class="btn btn-g btn-s" onclick="document.getElementById('arForm').style.display='none'">إلغاء</button></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== TICKET ====== -->
+    <div class="panel" id="panel-ticket">
+      <div class="card">
+        <div class="card-header"><h3>🎫 نظام التذاكر</h3><button class="btn btn-p btn-s" onclick="saveTicket()">💾 حفظ</button></div>
+        <div id="ticketContent"><div class="loading"><div class="spinner"></div></div></div>
+      </div>
+    </div>
+
+    <!-- ====== SUGGESTIONS ====== -->
+    <div class="panel" id="panel-suggestions">
+      <div class="card">
+        <div class="card-header"><h3>💡 نظام الاقتراحات</h3><button class="btn btn-p btn-s" onclick="saveSuggestions()">💾 حفظ</button></div>
+        <div id="suggestContent"><div class="loading"><div class="spinner"></div></div></div>
+      </div>
+    </div>
+
+    <!-- ====== PREMIUM ====== -->
+    <div class="panel" id="panel-premium">
+      <div class="prem-hero">
+        <div style="font-size:2.5rem;margin-bottom:10px;">👑</div>
+        <h2 style="font-family:'Orbitron',monospace;font-size:1.5rem;background:linear-gradient(135deg,#f5a742,#fee75c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:6px;">XTRA PREMIUM</h2>
+        <p style="color:var(--muted);">ارقَ بسيرفرك مع ميزات حصرية لا تتوفر في النسخة المجانية</p>
+        <div id="premStatusBox" style="margin-top:14px;"></div>
+      </div>
+      <div class="plans-grid">
+        <div class="plan-card">
+          <div class="plan-name">FREE</div>
+          <div class="plan-price">$0 <span>/شهر</span></div>
+          <ul class="plan-features">
+            <li class="y">100 أمر أساسي</li><li class="y">نظام التذاكر (محدود)</li><li class="y">الحماية الأساسية</li><li class="y">الترحيب والوداع</li><li class="y">10 ردود تلقائية</li>
+            <li class="n">موسيقى HD</li><li class="n">إحصائيات متقدمة</li><li class="n">دعم أولوية</li><li class="n">تذاكر غير محدودة</li>
+          </ul>
+          <button class="btn btn-g" style="width:100%;" disabled>النسخة الحالية</button>
+        </div>
+        <div class="plan-card feat">
+          <div style="background:linear-gradient(135deg,#f5a742,#fee75c);color:#000;font-size:0.68rem;font-weight:900;padding:3px 12px;border-radius:999px;display:inline-block;margin-bottom:9px;">⭐ الأفضل</div>
+          <div class="plan-name" style="background:linear-gradient(135deg,#f5a742,#fee75c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">PREMIUM</div>
+          <div class="plan-price" style="background:linear-gradient(135deg,#f5a742,#fee75c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">$1 <span style="-webkit-text-fill-color:var(--muted);">/شهر</span></div>
+          <ul class="plan-features">
+            <li class="y">كل ميزات Free</li><li class="y">تذاكر غير محدودة</li><li class="y">🎵 موسيقى HD</li><li class="y">إحصائيات متقدمة</li><li class="y">ردود تلقائية غير محدودة</li><li class="y">حماية AI</li><li class="y">⚡ دعم أولوية 24/7</li><li class="y">تخصيص كامل</li>
+          </ul>
+          <button class="btn btn-gold" style="width:100%;" onclick="showPayment()">👑 اشترك الآن — $1</button>
+        </div>
+      </div>
+      <!-- طرق الدفع -->
+      <div class="card" id="paymentSection" style="display:none;">
+        <div class="card-header"><h3>💳 طرق الدفع</h3></div>
+        <p style="color:var(--muted);font-size:0.88rem;margin-bottom:16px;">اختر طريقة الدفع المناسبة لك — السعر $1 شهرياً فقط!</p>
+        <div class="payment-methods">
+          <div class="pm-card" onclick="showVodafoneInstructions()">
+            <div class="pm-icon">📱</div>
+            <div class="pm-name">فودافون كاش</div>
+            <div class="pm-desc">تحويل للرقم المحدد</div>
+          </div>
+          <div class="pm-card" onclick="openTicketSupport()">
+            <div class="pm-icon">🎫</div>
+            <div class="pm-name">تكت دعم</div>
+            <div class="pm-desc">افتح تكت في سيرفر الدعم</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== CONTACT ====== -->
+    <div class="panel" id="panel-contact">
+      <div class="card">
+        <div class="card-header"><h3>💬 التواصل مع المطور والدعم الفني</h3></div>
+        <div class="contact-grid">
+          <a href="https://discord.gg/HC8V8cPF4" target="_blank" class="contact-card">
+            <div class="contact-icon">🎮</div>
+            <div class="contact-name">سيرفر الدعم الفني</div>
+            <div class="contact-desc">انضم لسيرفرنا واحصل على مساعدة فورية من الفريق</div>
+            <div style="margin-top:12px;background:rgba(88,101,242,0.15);border:1px solid rgba(88,101,242,0.3);border-radius:8px;padding:6px;color:var(--accent2);font-size:0.8rem;font-weight:700;">discord.gg/HC8V8cPF4 ←</div>
+          </a>
+          <div class="contact-card" onclick="openTicketSupport()" style="cursor:pointer;">
+            <div class="contact-icon">🎫</div>
+            <div class="contact-name">فتح تكت دعم</div>
+            <div class="contact-desc">تواصل مع الفريق مباشرة عبر نظام التذاكر للمشاكل والاستفسارات</div>
+            <div style="margin-top:12px;background:rgba(87,242,135,0.1);border:1px solid rgba(87,242,135,0.25);border-radius:8px;padding:6px;color:var(--green);font-size:0.8rem;font-weight:700;">اضغط لفتح تكت →</div>
+          </div>
+          <div class="contact-card" onclick="showPayment()" style="cursor:pointer;">
+            <div class="contact-icon">👑</div>
+            <div class="contact-name">اشتراك بريميوم</div>
+            <div class="contact-desc">فعّل البريميوم بـ $1 شهرياً عبر فودافون كاش أو تكت دعم</div>
+            <div style="margin-top:12px;background:linear-gradient(135deg,rgba(245,167,66,0.15),rgba(254,231,92,0.08));border:1px solid rgba(245,167,66,0.3);border-radius:8px;padding:6px;color:#f5a742;font-size:0.8rem;font-weight:700;">$1 فقط شهرياً ←</div>
+          </div>
+          <div class="contact-card" onclick="toast('قريباً! 🚀','info')" style="cursor:pointer;">
+            <div class="contact-icon">📢</div>
+            <div class="contact-name">قناة الإعلانات</div>
+            <div class="contact-desc">تابع آخر تحديثات وميزات Xtra System</div>
+            <div style="margin-top:12px;background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.2);border-radius:8px;padding:6px;color:var(--accent2);font-size:0.8rem;font-weight:700;">قريباً ⚡</div>
+          </div>
+        </div>
+      </div>
+      <!-- معلومات التواصل المباشر -->
+      <div class="card">
+        <div class="card-header"><h3>📞 معلومات التواصل المباشر</h3></div>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div style="background:var(--card2);border-radius:10px;padding:14px;display:flex;align-items:center;gap:12px;">
+            <div style="font-size:1.5rem;">📱</div>
+            <div><div style="font-weight:700;margin-bottom:2px;">فودافون كاش</div><div style="color:var(--accent2);font-family:'Orbitron',monospace;font-size:0.9rem;">+201069181060</div></div>
+            <button class="btn btn-g btn-s" style="margin-right:auto;" onclick="copyText('+201069181060')">نسخ</button>
+          </div>
+          <div style="background:var(--card2);border-radius:10px;padding:14px;display:flex;align-items:center;gap:12px;">
+            <div style="font-size:1.5rem;">🎮</div>
+            <div><div style="font-weight:700;margin-bottom:2px;">سيرفر ديسكورد</div><div style="color:var(--accent2);font-size:0.9rem;">discord.gg/HC8V8cPF4</div></div>
+            <a href="https://discord.gg/HC8V8cPF4" target="_blank" class="btn btn-p btn-s" style="margin-right:auto;">انضم</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== MOD COMMANDS ====== -->
+    <div class="panel" id="panel-mod_cmds">
+      <div class="card">
+        <div class="card-header"><h3>🔨 أوامر الإشراف</h3><span class="tag tag-blue">prefix + الأمر</span></div>
+        <p style="color:var(--muted);font-size:0.85rem;margin-bottom:16px;">جميع أوامر الإشراف المتاحة في البوت — استبدل <strong style="color:var(--accent2);">!</strong> بالبرفكس اللي عندك</p>
+        <div id="modCmdsGrid" class="cmds-grid"></div>
+      </div>
+    </div>
+
+    <!-- ====== GEN COMMANDS ====== -->
+    <div class="panel" id="panel-gen_cmds">
+      <div class="card">
+        <div class="card-header"><h3>🎮 الأوامر العامة</h3><span class="tag tag-green">متاح للجميع</span></div>
+        <p style="color:var(--muted);font-size:0.85rem;margin-bottom:16px;">الأوامر العامة اللي يقدر يستخدمها كل الأعضاء</p>
+        <div id="genCmdsGrid" class="cmds-grid"></div>
+      </div>
+    </div>
+
+    <!-- ====== ADMIN ====== -->
+    <div class="panel" id="panel-admin">
+      <div class="stats-grid" id="adminStats"><div class="stat-card"><div class="stat-icon" style="background:rgba(237,66,69,0.15);">⏳</div><div><div class="stat-num">...</div><div class="stat-label">تحميل</div></div></div></div>
+      <div class="card">
+        <div class="card-header"><h3>👑 إدارة البريميوم</h3><button class="btn btn-p btn-s" onclick="showGrantModal()">+ إعطاء بريميوم</button></div>
+        <div id="premiumList"><div class="loading"><div class="spinner"></div></div></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3>🖥️ جميع السيرفرات</h3></div>
+        <div id="adminGuildsList"><div class="loading"><div class="spinner"></div></div></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+// ===== STATE =====
+let currentGuildId = null;
+let guildInfo = {channels:[],roles:[],categories:[]};
+let arData = [];
+let isAdmin = false;
+let CLIENT_ID = '';
+
+// ===== INIT =====
+window.onload = async () => {
+  try {
+    const cfg = await fetch('/api/config'); const cfgData = await cfg.json();
+    CLIENT_ID = cfgData.clientId || '';
+  } catch {}
+  await loadUser();
+  await loadServers();
+  document.getElementById('serversPage').style.display = 'block';
+};
+
+// ===== USER =====
+async function loadUser() {
+  try {
+    const r = await fetch('/api/me'); if(!r.ok){window.location.href='/';return;}
+    const u = await r.json(); isAdmin = u.isAdmin;
+    document.getElementById('userBar').innerHTML = `
+      <img src="${u.avatar}" style="width:36px;height:36px;border-radius:50%;border:2px solid var(--accent);" onerror="this.style.display='none'">
+      <span style="font-weight:600;">${u.tag}</span>
+      ${u.isAdmin?'<span class="tag tag-red">🔧 أدمن</span>':''}
+      <button class="btn btn-g btn-s" onclick="logout()">خروج</button>
+    `;
+    document.getElementById('sbUname').textContent = u.username;
+    const avEl = document.getElementById('sbAv');
+    avEl.innerHTML = `<img src="${u.avatar}" class="sb-av" onerror="this.outerHTML='<div class=sb-av-ph>${u.username[0]}</div>'">`;
+    if(u.isAdmin) document.getElementById('adminNavItem').style.display='flex';
+  } catch { window.location.href='/'; }
+}
+
+// ===== SERVERS =====
+async function loadServers() {
+  try {
+    const r = await fetch('/api/guilds'); const guilds = await r.json();
+    const grid = document.getElementById('serversGrid');
+    if(!guilds.length){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--muted);padding:40px;">لا يوجد سيرفرات</div>';return;}
+    grid.innerHTML = guilds.map(g=>`
+      <div class="srv-card">
+        ${g.isPremium?'<div class="prem-badge">👑 Premium</div>':''}
+        ${g.icon?`<img src="${g.icon}" class="srv-icon" onerror="this.outerHTML='<div class=srv-icon-ph style=background:linear-gradient(135deg,#5865F2,#7c3aed)>${g.name[0]}</div>'">`:`<div class="srv-icon-ph" style="background:linear-gradient(135deg,#5865F2,#7c3aed);">${g.name[0]}</div>`}
+        <div class="srv-name">${g.name}</div>
+        <div class="srv-members">👥 ${g.memberCount?g.memberCount.toLocaleString():'?'} عضو</div>
+        <div class="bot-badge ${g.hasBot?'bot-on':'bot-off'}">${g.hasBot?'● البوت موجود':'○ البوت غير مضاف'}</div>
+        ${g.hasBot
+          ?`<button class="btn-manage" onclick="enterDash('${g.id}','${g.name}','${g.icon||''}','${g.isPremium}')">⚙️ إدارة السيرفر</button>`
+          :`<a class="btn-add" href="#" onclick="addBot('${g.id}');return false;">➕ إضافة البوت</a>`
+        }
+      </div>`).join('');
+  } catch { document.getElementById('serversGrid').innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--red);padding:40px;">خطأ في التحميل</div>'; }
+}
+
+// ===== ENTER DASH =====
+async function enterDash(id,name,icon,isPrem) {
+  currentGuildId=id;
+  document.getElementById('serversPage').style.display='none';
+  document.getElementById('dashPage').style.display='block';
+  document.getElementById('sbName').textContent=name;
+  const si=document.getElementById('sbIcon');
+  if(icon){si.innerHTML=`<img src="${icon}" class="sb-srv-icon" onerror="this.outerHTML='<div class=sb-srv-icon-ph style=background:linear-gradient(135deg,#5865F2,#7c3aed)>${name[0]}</div>'">`;}
+  else{si.textContent=name[0];}
+  const b=document.getElementById('planBadge');
+  if(isPrem==='true'){b.className='plan-badge plan-prem';b.textContent='👑 Premium';}
+  else{b.className='plan-badge plan-free';b.textContent='⚡ Free';}
+  try{const r=await fetch(`/api/guild/${id}/info`);guildInfo=await r.json();}catch{guildInfo={channels:[],roles:[],categories:[]};}
+  loadOverview();
+  showP('overview',document.querySelector('.ni'));
+}
+
+function goServers(){document.getElementById('dashPage').style.display='none';document.getElementById('serversPage').style.display='block';currentGuildId=null;}
+function logout(){window.location.href='/logout';}
+
+// ===== PANELS =====
+const TITLES={overview:'📊 نظرة عامة',prefix:'⌨️ البرفكس والأوامر',protection:'🛡️ الحماية',logs:'📋 السجلات',welcome:'👋 الترحيب والوداع',autoresponse:'🤖 الرد التلقائي',ticket:'🎫 نظام التذاكر',suggestions:'💡 الاقتراحات',premium:'👑 بريميوم',contact:'💬 التواصل والدعم',admin:'🔧 لوحة الأدمن',mod_cmds:'🔨 أوامر الإشراف',gen_cmds:'🎮 الأوامر العامة'};
+const LOADERS={protection:loadProtection,logs:loadLogs,welcome:loadWelcome,autoresponse:loadAR,ticket:loadTicket,suggestions:loadSuggestions,premium:loadPremium,admin:loadAdmin,prefix:loadPrefix,mod_cmds:loadModCmds,gen_cmds:loadGenCmds};
+
+function showP(name,el){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+  if(el)el.classList.add('active');
+  document.getElementById('pageTitle').textContent=TITLES[name]||name;
+  if(LOADERS[name])LOADERS[name]();
+  if(window.innerWidth<=900)document.getElementById('sidebar').classList.remove('open');
+}
+
+// ===== HELPERS =====
+function ch(sel,v=''){return`<option value="">اختر قناة</option>`+guildInfo.channels.map(c=>`<option value="${c.id}"${c.id===v?' selected':''}># ${c.name}</option>`).join('');}
+function ro(sel,v=''){return`<option value="">اختر رتبة</option>`+guildInfo.roles.map(r=>`<option value="${r.id}"${r.id===v?' selected':''}>@ ${r.name}</option>`).join('');}
+function cat(v=''){return`<option value="">اختر كاتيغوري</option>`+(guildInfo.categories||[]).map(c=>`<option value="${c.id}"${c.id===v?' selected':''}>${c.name}</option>`).join('');}
+
+// ===== OVERVIEW =====
+async function loadOverview(){
+  try{
+    const r=await fetch(`/api/guild/${currentGuildId}/stats`); const s=await r.json();
+    document.getElementById('statsGrid').innerHTML=`
+      <div class="stat-card"><div class="stat-icon" style="background:rgba(88,101,242,0.15);">👥</div><div><div class="stat-num">${s.memberCount.toLocaleString()}</div><div class="stat-label">الأعضاء</div></div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:rgba(87,242,135,0.15);">🟢</div><div><div class="stat-num">${s.onlineCount.toLocaleString()}</div><div class="stat-label">أونلاين</div></div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:rgba(0,212,255,0.15);">🎫</div><div><div class="stat-num">${s.openTickets}</div><div class="stat-label">تذاكر مفتوحة</div></div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:rgba(237,66,69,0.15);">⚠️</div><div><div class="stat-num">${s.warns}</div><div class="stat-label">إنذارات</div></div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:rgba(245,167,66,0.15);">👑</div><div><div class="stat-num">${s.isPremium?'✅':'❌'}</div><div class="stat-label">بريميوم</div></div></div>
+    `;
+    document.getElementById('overviewInfo').innerHTML=`
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="display:flex;align-items:center;gap:10px;background:var(--card2);border-radius:10px;padding:12px;">
+          <span style="font-size:1.3rem;">✅</span>
+          <div><div style="font-weight:600;">البوت يعمل بشكل طبيعي</div><div style="color:var(--muted);font-size:0.82rem;">متصل بسيرفر ${document.getElementById('sbName').textContent}</div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;background:var(--card2);border-radius:10px;padding:12px;">
+          <span style="font-size:1.3rem;">💬</span>
+          <div><div style="font-weight:600;">للدعم الفني</div><div style="color:var(--muted);font-size:0.82rem;">انضم لسيرفر الدعم أو افتح تكت</div></div>
+          <a href="https://discord.gg/HC8V8cPF4" target="_blank" class="btn btn-p btn-s" style="margin-right:auto;">الدعم</a>
+        </div>
+      </div>
+    `;
+  }catch{document.getElementById('overviewInfo').textContent='خطأ في التحميل';}
+}
+
+// ===== PREFIX =====
+async function loadPrefix(){
+  try{const r=await fetch(`/api/guild/${currentGuildId}/prefix`);const d=await r.json();
+  document.getElementById('prefixVal').value=d.prefix||'!';}catch{}
+}
+async function savePrefix(){
+  const prefix=document.getElementById('prefixVal').value.trim()||'!';
+  const r=await fetch(`/api/guild/${currentGuildId}/prefix`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prefix})});
+  const d=await r.json(); d.success?toast('✅ تم حفظ البرفكس','success'):toast('❌ خطأ','error');
+  document.getElementById('prefixExamples').innerHTML=[`${prefix}ban @user`,`${prefix}kick @user سبب`,`${prefix}mute @user 10m`,`${prefix}warn @user`].map(x=>`<span class="tag tag-blue">${x}</span>`).join('');
+}
+
+// ===== PROTECTION =====
+async function loadProtection(){
+  const r=await fetch(`/api/guild/${currentGuildId}/protection`); const d=await r.json();
+  document.getElementById('protContent').innerHTML=`
+    <div class="tr"><div class="tl"><div class="name">Anti-Raid 🚨</div><div class="desc">منع الانضمام الجماعي المفاجئ</div></div><label class="toggle"><input type="checkbox" id="pAntiRaid" ${d.antiRaid?'checked':''}><span class="ts"></span></label></div>
+    <div class="tr"><div class="tl"><div class="name">Anti-Spam 💬</div><div class="desc">منع الرسائل المتكررة</div></div><label class="toggle"><input type="checkbox" id="pAntiSpam" ${d.antiSpam?'checked':''}><span class="ts"></span></label></div>
+    <div class="tr"><div class="tl"><div class="name">Anti-Link 🔗</div><div class="desc">حذف الروابط تلقائياً</div></div><label class="toggle"><input type="checkbox" id="pAntiLink" ${d.antiLink?'checked':''}><span class="ts"></span></label></div>
+    <div class="tr"><div class="tl"><div class="name">Anti-Ad 📢</div><div class="desc">منع الإعلانات والدعوات</div></div><label class="toggle"><input type="checkbox" id="pAntiAd" ${d.antiAd?'checked':''}><span class="ts"></span></label></div>
+    <div class="tr"><div class="tl"><div class="name">Anti-Mention 📣</div><div class="desc">منع منشن الأعضاء المفرط</div></div><label class="toggle"><input type="checkbox" id="pAntiMention" ${d.antiMention?'checked':''}><span class="ts"></span></label></div>
+    <div class="tr"><div class="tl"><div class="name">Anti-Emoji 😂</div><div class="desc">منع الإيموجي المفرط</div></div><label class="toggle"><input type="checkbox" id="pAntiEmoji" ${d.antiEmoji?'checked':''}><span class="ts"></span></label></div>
+    <div class="tr"><div class="tl"><div class="name">Anti-Caps 🔠</div><div class="desc">منع الكتابة بحروف كبيرة</div></div><label class="toggle"><input type="checkbox" id="pAntiCaps" ${d.antiCaps?'checked':''}><span class="ts"></span></label></div>
+    <div class="fg2" style="margin-top:16px;">
+      <div class="fg"><label class="fl">حد الريد <small>(في الدقيقة)</small></label><input type="number" class="fi" id="pRaidLimit" value="${d.raidLimit||10}"></div>
+      <div class="fg"><label class="fl">إجراء الريد</label><select class="fs" id="pRaidAction"><option value="lock" ${d.raidAction==='lock'?'selected':''}>قفل السيرفر</option><option value="ban" ${d.raidAction==='ban'?'selected':''}>حظر</option><option value="kick" ${d.raidAction==='kick'?'selected':''}>طرد</option></select></div>
+      <div class="fg"><label class="fl">حد السبام <small>(رسالة/ثانية)</small></label><input type="number" class="fi" id="pSpamLimit" value="${d.spamLimit||5}"></div>
+    </div>
+  `;
+}
+async function saveProtection(){
+  const body={antiRaid:document.getElementById('pAntiRaid').checked,antiSpam:document.getElementById('pAntiSpam').checked,antiLink:document.getElementById('pAntiLink').checked,antiAd:document.getElementById('pAntiAd').checked,antiMention:document.getElementById('pAntiMention').checked,antiEmoji:document.getElementById('pAntiEmoji').checked,antiCaps:document.getElementById('pAntiCaps').checked,raidLimit:parseInt(document.getElementById('pRaidLimit').value),spamLimit:parseInt(document.getElementById('pSpamLimit').value),raidAction:document.getElementById('pRaidAction').value};
+  const r=await fetch(`/api/guild/${currentGuildId}/protection`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const d=await r.json(); d.success?toast('✅ تم حفظ الحماية','success'):toast('❌ خطأ','error');
+}
+
+// ===== LOGS =====
+async function loadLogs(){
+  const r=await fetch(`/api/guild/${currentGuildId}/logs`); const d=await r.json();
+  document.getElementById('logsContent').innerHTML=`
+    <div class="fg"><label class="fl">قناة السجلات</label><select class="fs" id="lChannel"><option value="">اختر قناة</option>${ch('',d.channel)}</select></div>
+    <div class="tr"><div class="tl"><div class="name">تفعيل السجلات</div></div><label class="toggle"><input type="checkbox" id="lEnabled" ${d.enabled?'checked':''}><span class="ts"></span></label></div>
+    <div class="logs-grid" style="margin-top:14px;">
+      <div class="log-item">👋 انضمام<label class="toggle"><input type="checkbox" id="lJoin" ${d.memberJoin?'checked':''}><span class="ts"></span></label></div>
+      <div class="log-item">🚪 مغادرة<label class="toggle"><input type="checkbox" id="lLeave" ${d.memberLeave?'checked':''}><span class="ts"></span></label></div>
+      <div class="log-item">✏️ تعديل رسائل<label class="toggle"><input type="checkbox" id="lEdit" ${d.messageEdit?'checked':''}><span class="ts"></span></label></div>
+      <div class="log-item">🗑️ حذف رسائل<label class="toggle"><input type="checkbox" id="lDelete" ${d.messageDelete?'checked':''}><span class="ts"></span></label></div>
+      <div class="log-item">🔨 عقوبات<label class="toggle"><input type="checkbox" id="lPunish" ${d.punishments?'checked':''}><span class="ts"></span></label></div>
+      <div class="log-item">🎫 تذاكر<label class="toggle"><input type="checkbox" id="lTicket" ${d.ticketEvents?'checked':''}><span class="ts"></span></label></div>
+      <div class="log-item">🎤 صوت<label class="toggle"><input type="checkbox" id="lVoice" ${d.voiceEvents?'checked':''}><span class="ts"></span></label></div>
+      <div class="log-item">🔧 تغييرات<label class="toggle"><input type="checkbox" id="lServer" ${d.serverChanges?'checked':''}><span class="ts"></span></label></div>
+      <div class="log-item">👑 رتب<label class="toggle"><input type="checkbox" id="lRoles" ${d.roleChanges?'checked':''}><span class="ts"></span></label></div>
+      <div class="log-item">📝 قنوات<label class="toggle"><input type="checkbox" id="lChannels" ${d.channelChanges?'checked':''}><span class="ts"></span></label></div>
+    </div>
+  `;
+}
+async function saveLogs(){
+  const body={enabled:document.getElementById('lEnabled').checked,channel:document.getElementById('lChannel').value,memberJoin:document.getElementById('lJoin').checked,memberLeave:document.getElementById('lLeave').checked,messageEdit:document.getElementById('lEdit').checked,messageDelete:document.getElementById('lDelete').checked,punishments:document.getElementById('lPunish').checked,ticketEvents:document.getElementById('lTicket').checked,voiceEvents:document.getElementById('lVoice').checked,serverChanges:document.getElementById('lServer').checked,roleChanges:document.getElementById('lRoles').checked,channelChanges:document.getElementById('lChannels').checked};
+  const r=await fetch(`/api/guild/${currentGuildId}/logs`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const d=await r.json(); d.success?toast('✅ تم حفظ السجلات','success'):toast('❌ خطأ','error');
+}
+
+// ===== WELCOME =====
+async function loadWelcome(){
+  const r=await fetch(`/api/guild/${currentGuildId}/welcome`); const d=await r.json();
+  document.getElementById('welcomeContent').innerHTML=`
+    <div class="tr"><div class="tl"><div class="name">تفعيل الترحيب</div></div><label class="toggle"><input type="checkbox" id="wEnabled" ${d.enabled?'checked':''}><span class="ts"></span></label></div>
+    <div class="fg2" style="margin-top:14px;">
+      <div class="fg"><label class="fl">قناة الترحيب</label><select class="fs" id="wChannel">${ch('',d.channel)}</select></div>
+      <div class="fg"><label class="fl">رتبة تلقائية</label><select class="fs" id="wAutoRole">${ro('',d.autoRole)}</select></div>
+    </div>
+    <div class="fg"><label class="fl">رسالة الترحيب <small>({user} {server} {count} {mention})</small></label><textarea class="fta" id="wMsg">${d.message||''}</textarea></div>
+    <div class="tr"><div class="tl"><div class="name">رسالة خاصة (DM) عند الانضمام</div></div><label class="toggle"><input type="checkbox" id="wDM" ${d.dmEnabled?'checked':''}><span class="ts"></span></label></div>
+    <div class="fg" style="margin-top:10px;"><label class="fl">نص الرسالة الخاصة</label><textarea class="fta" id="wDMMsg">${d.dmMessage||''}</textarea></div>
+    <hr class="divider">
+    <div class="tr"><div class="tl"><div class="name">تفعيل الوداع</div></div><label class="toggle"><input type="checkbox" id="lEnabled2" ${d.leaveEnabled?'checked':''}><span class="ts"></span></label></div>
+    <div class="fg" style="margin-top:12px;"><label class="fl">قناة الوداع</label><select class="fs" id="lChannel2">${ch('',d.leaveChannel)}</select></div>
+    <div class="fg"><label class="fl">رسالة الوداع</label><textarea class="fta" id="lMsg">${d.leaveMessage||''}</textarea></div>
+  `;
+}
+async function saveWelcome(){
+  const body={enabled:document.getElementById('wEnabled').checked,channel:document.getElementById('wChannel').value,message:document.getElementById('wMsg').value,autoRole:document.getElementById('wAutoRole').value,dmEnabled:document.getElementById('wDM').checked,dmMessage:document.getElementById('wDMMsg').value,leaveEnabled:document.getElementById('lEnabled2').checked,leaveChannel:document.getElementById('lChannel2').value,leaveMessage:document.getElementById('lMsg').value};
+  const r=await fetch(`/api/guild/${currentGuildId}/welcome`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const d=await r.json(); d.success?toast('✅ تم حفظ الترحيب','success'):toast('❌ خطأ','error');
+}
+
+// ===== AR =====
+async function loadAR(){
+  const r=await fetch(`/api/guild/${currentGuildId}/autoresponse`); arData=await r.json(); renderAR();
+}
+function renderAR(){
+  const list=document.getElementById('arList');
+  if(!arData.length){list.innerHTML='<div style="color:var(--muted);text-align:center;padding:20px;">لا توجد ردود تلقائية — اضغط + إضافة</div>';return;}
+  list.innerHTML=arData.map((ar,i)=>`<div class="ar-item"><span class="ar-trig">${ar.trigger}</span><div class="ar-resp">${ar.response}</div><button class="ar-del" onclick="delAR(${i})">🗑️</button></div>`).join('');
+}
+function showARForm(){document.getElementById('arForm').style.display='block';}
+async function addAR(){
+  const t=document.getElementById('arTrigger').value.trim(),r2=document.getElementById('arResp').value.trim();
+  if(!t||!r2){toast('أدخل الكلمة والرد!','error');return;}
+  arData.push({trigger:t,type:document.getElementById('arType').value,response:r2});
+  await saveARData(); document.getElementById('arForm').style.display='none';
+  document.getElementById('arTrigger').value='';document.getElementById('arResp').value='';renderAR();
+}
+async function delAR(i){arData.splice(i,1);await saveARData();renderAR();}
+async function saveARData(){
+  const r=await fetch(`/api/guild/${currentGuildId}/autoresponse`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({responses:arData})});
+  const d=await r.json(); if(d.success)toast('✅ تم الحفظ','success');
+}
+
+// ===== TICKET =====
+async function loadTicket(){
+  const r=await fetch(`/api/guild/${currentGuildId}/ticket`); const d=await r.json();
+  document.getElementById('ticketContent').innerHTML=`
+    <div class="tr"><div class="tl"><div class="name">تفعيل التذاكر</div></div><label class="toggle"><input type="checkbox" id="tEnabled" ${d.enabled?'checked':''}><span class="ts"></span></label></div>
+    <div class="fg2" style="margin-top:14px;">
+      <div class="fg"><label class="fl">قناة اللوحة</label><select class="fs" id="tChannel">${ch('',d.channel)}</select></div>
+      <div class="fg"><label class="fl">الكاتيغوري</label><select class="fs" id="tCat">${cat(d.category)}</select></div>
+      <div class="fg"><label class="fl">رتبة الدعم</label><select class="fs" id="tRole">${ro('',d.supportRole)}</select></div>
+      <div class="fg"><label class="fl">أقصى تذاكر للعضو</label><input type="number" class="fi" id="tMax" value="${d.maxTickets||1}" min="1" max="5"></div>
+    </div>
+    <div class="fg"><label class="fl">عنوان الـ Embed</label><input type="text" class="fi" id="tTitle" value="${d.title||'🎫 نظام التذاكر'}"></div>
+    <div class="fg"><label class="fl">وصف الـ Embed</label><textarea class="fta" id="tDesc">${d.description||''}</textarea></div>
+    <div class="fg"><label class="fl">نص الزر</label><input type="text" class="fi" id="tBtn" value="${d.buttonText||'📩 فتح تذكرة'}"></div>
+    <div class="fg"><label class="fl">رسالة داخل التذكرة</label><textarea class="fta" id="tWelcome">${d.welcomeMsg||''}</textarea></div>
+    <div class="save-bar"><span>احفظ ثم اضغط إرسال اللوحة</span><button class="btn btn-g btn-s" onclick="toast('📤 تم إرسال اللوحة!','success')">📤 إرسال اللوحة</button></div>
+  `;
+}
+async function saveTicket(){
+  const body={enabled:document.getElementById('tEnabled').checked,channel:document.getElementById('tChannel').value,category:document.getElementById('tCat').value,supportRole:document.getElementById('tRole').value,maxTickets:parseInt(document.getElementById('tMax').value),title:document.getElementById('tTitle').value,description:document.getElementById('tDesc').value,buttonText:document.getElementById('tBtn').value,welcomeMsg:document.getElementById('tWelcome').value};
+  const r=await fetch(`/api/guild/${currentGuildId}/ticket`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const d=await r.json(); d.success?toast('✅ تم حفظ التذاكر','success'):toast('❌ خطأ','error');
+}
+
+// ===== SUGGESTIONS =====
+async function loadSuggestions(){
+  const r=await fetch(`/api/guild/${currentGuildId}/suggestions`); const d=await r.json();
+  document.getElementById('suggestContent').innerHTML=`
+    <div class="tr"><div class="tl"><div class="name">تفعيل الاقتراحات</div></div><label class="toggle"><input type="checkbox" id="sEnabled" ${d.enabled?'checked':''}><span class="ts"></span></label></div>
+    <div class="fg2" style="margin-top:14px;">
+      <div class="fg"><label class="fl">قناة الاقتراحات</label><select class="fs" id="sChannel">${ch('',d.channel)}</select></div>
+      <div class="fg"><label class="fl">قناة قرارات الإدارة</label><select class="fs" id="sStaff">${ch('',d.staffChannel)}</select></div>
+    </div>
+    <div class="tr"><div class="tl"><div class="name">Thread تلقائي لكل اقتراح</div><div class="desc">ينشئ thread نقاش لكل اقتراح</div></div><label class="toggle"><input type="checkbox" id="sThread" ${d.autoThread?'checked':''}><span class="ts"></span></label></div>
+  `;
+}
+async function saveSuggestions(){
+  const body={enabled:document.getElementById('sEnabled').checked,channel:document.getElementById('sChannel').value,staffChannel:document.getElementById('sStaff').value,autoThread:document.getElementById('sThread').checked};
+  const r=await fetch(`/api/guild/${currentGuildId}/suggestions`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const d=await r.json(); d.success?toast('✅ تم حفظ الاقتراحات','success'):toast('❌ خطأ','error');
+}
+
+// ===== PREMIUM =====
+async function loadPremium(){
+  const r=await fetch(`/api/guild/${currentGuildId}/premium`); const d=await r.json();
+  const box=document.getElementById('premStatusBox');
+  if(d.premium){
+    const exp=d.expiresAt?new Date(d.expiresAt).toLocaleDateString('ar-EG'):'غير محدد';
+    box.innerHTML=`<div style="background:rgba(87,242,135,0.1);border:1px solid rgba(87,242,135,0.25);border-radius:12px;padding:14px;color:var(--green);font-weight:700;">✅ هذا السيرفر مفعّل عليه البريميوم — ينتهي: ${exp}</div>`;
+    document.getElementById('paymentSection').style.display='none';
+  } else {
+    box.innerHTML=`<div style="background:rgba(107,114,128,0.1);border:1px solid var(--border);border-radius:12px;padding:14px;color:var(--muted);">هذا السيرفر على النسخة المجانية — اشترك بـ $1 فقط!</div>`;
+  }
+}
+function showPayment(){document.getElementById('paymentSection').style.display='block';document.getElementById('paymentSection').scrollIntoView({behavior:'smooth'});}
+
+function showVodafoneInstructions(){
+  openModal(`
+    <h3>📱 الدفع عبر فودافون كاش</h3>
+    <p style="color:var(--muted);font-size:0.88rem;margin-bottom:16px;">اتبع الخطوات دي لتفعيل البريميوم:</p>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div style="background:var(--card2);border-radius:10px;padding:12px;display:flex;gap:10px;align-items:center;">
+        <div style="width:28px;height:28px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:0.85rem;flex-shrink:0;">1</div>
+        <div>حوّل <strong>$1 (حوالي 50 جنيه)</strong> على رقم فودافون كاش</div>
+      </div>
+      <div style="background:var(--card2);border-radius:10px;padding:12px;display:flex;gap:10px;align-items:center;">
+        <div style="width:28px;height:28px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:0.85rem;flex-shrink:0;">2</div>
+        <div>الرقم: <strong style="color:var(--accent2);font-family:'Orbitron',monospace;">+201069181060</strong> <button class="btn btn-g btn-s" onclick="copyText('+201069181060')">نسخ</button></div>
+      </div>
+      <div style="background:var(--card2);border-radius:10px;padding:12px;display:flex;gap:10px;align-items:center;">
+        <div style="width:28px;height:28px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:0.85rem;flex-shrink:0;">3</div>
+        <div>افتح تكت في سيرفر الدعم وأبعت صورة التحويل + ID سيرفرك</div>
+      </div>
+      <div style="background:var(--card2);border-radius:10px;padding:12px;display:flex;gap:10px;align-items:center;">
+        <div style="width:28px;height:28px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:0.85rem;flex-shrink:0;">✓</div>
+        <div>هيتفعل البريميوم في السيرفر خلال دقائق!</div>
+      </div>
+    </div>
+    <div style="margin-top:16px;display:flex;gap:10px;">
+      <a href="https://discord.gg/HC8V8cPF4" target="_blank" class="btn btn-p" style="flex:1;justify-content:center;">🎫 افتح تكت دعم</a>
+      <button class="btn btn-g" onclick="closeModal()">إغلاق</button>
+    </div>
+  `);
+}
+
+function openTicketSupport(){window.open('https://discord.gg/HC8V8cPF4','_blank');}
+
+// ===== ADMIN =====
+async function loadAdmin(){
+  if(!isAdmin)return;
+  try{
+    const [statsR,guildsR,premR]=await Promise.all([fetch('/api/admin/stats'),fetch('/api/admin/guilds'),fetch('/api/admin/premium/list')]);
+    const statsRaw=await statsR.json(), guildsRaw=await guildsR.json(), premsRaw=await premR.json();
+    // ✅ FIX: تأكد إن الـ responses صح وmake sure arrays
+    const stats = (statsRaw && !statsRaw.error) ? statsRaw : {totalGuilds:0,premiumGuilds:0,freeGuilds:0};
+    const guilds = Array.isArray(guildsRaw) ? guildsRaw : [];
+    const prems = Array.isArray(premsRaw) ? premsRaw : [];
+    // إظهار تحذير لو فشل جلب السيرفرات من Discord
+    if(guildsRaw && guildsRaw.error){
+      document.getElementById('adminGuildsList').innerHTML=`<div style="color:var(--red);text-align:center;padding:20px;">⚠️ تعذر جلب سيرفرات البوت من Discord. تحقق من BOT_TOKEN.</div>`;
+    }
+    document.getElementById('adminStats').innerHTML=`
+      <div class="stat-card"><div class="stat-icon" style="background:rgba(88,101,242,0.15);">🖥️</div><div><div class="stat-num">${stats.totalGuilds}</div><div class="stat-label">كل السيرفرات</div></div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:rgba(245,167,66,0.15);">👑</div><div><div class="stat-num">${stats.premiumGuilds}</div><div class="stat-label">بريميوم</div></div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:rgba(107,114,128,0.15);">⚡</div><div><div class="stat-num">${stats.freeGuilds}</div><div class="stat-label">مجاني</div></div></div>
+    `;
+    document.getElementById('premiumList').innerHTML=prems.length?`<table class="admin-table"><tr><th>ID السيرفر</th><th>تاريخ الانتهاء</th><th>أُعطي بواسطة</th><th>إجراء</th></tr>${prems.map(p=>`<tr><td style="font-family:'Orbitron',monospace;font-size:0.75rem;">${p.guildId}</td><td>${p.expiresAt?new Date(p.expiresAt).toLocaleDateString('ar-EG'):'غير محدد'}</td><td>${p.grantedBy||'-'}</td><td><button class="btn btn-d btn-s" onclick="revokePremium('${p.guildId}')">سحب</button></td></tr>`).join('')}</table>`:'<div style="color:var(--muted);text-align:center;padding:20px;">لا يوجد سيرفرات بريميوم</div>';
+    if(guilds.length>0){
+      document.getElementById('adminGuildsList').innerHTML=`<table class="admin-table"><tr><th>السيرفر</th><th>ID</th><th>الحالة</th><th>إجراء</th></tr>${guilds.map(g=>`<tr><td style="display:flex;align-items:center;gap:8px;">${g.icon?`<img src="${g.icon}" style="width:24px;height:24px;border-radius:50%;">`:''}<span>${g.name}</span></td><td style="font-family:'Orbitron',monospace;font-size:0.72rem;">${g.id}</td><td>${g.premium?'<span class="tag tag-yellow">👑 بريميوم</span>':'<span class="tag" style="background:rgba(107,114,128,0.1);color:var(--muted);border:1px solid var(--border);">⚡ مجاني</span>'}</td><td>${g.premium?`<button class="btn btn-d btn-s" onclick="revokePremium('${g.id}')">سحب</button>`:`<button class="btn btn-green btn-s" onclick="grantPremiumDirect('${g.id}')">إعطاء</button>`}</td></tr>`).join('')}</table>`;
+    }
+  }catch(e){console.error('loadAdmin error:',e);toast('خطأ في تحميل بيانات الأدمن: '+e.message,'error');}
+}
+
+function showGrantModal(){
+  openModal(`
+    <h3>👑 إعطاء بريميوم</h3>
+    <div class="fg"><label class="fl">ID السيرفر</label><input type="text" class="fi" id="grantGuildId" placeholder="123456789012345678"></div>
+    <div class="fg"><label class="fl">المدة بالأيام <small>(فارغ = دائم)</small></label><input type="number" class="fi" id="grantDays" placeholder="30" min="1"></div>
+    <div style="display:flex;gap:10px;margin-top:16px;">
+      <button class="btn btn-gold" onclick="grantPremium()" style="flex:1;">👑 إعطاء البريميوم</button>
+      <button class="btn btn-g" onclick="closeModal()">إلغاء</button>
+    </div>
+  `);
+}
+
+async function grantPremium(){
+  const guildId=document.getElementById('grantGuildId').value.trim();
+  const days=document.getElementById('grantDays').value;
+  if(!guildId){toast('أدخل ID السيرفر!','error');return;}
+  const r=await fetch('/api/admin/premium/grant',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({guildId,days:days?parseInt(days):null})});
+  const d=await r.json();
+  if(d.success){toast(`✅ تم إعطاء البريميوم للسيرفر ${guildId}`,'success');closeModal();loadAdmin();}
+  else toast('❌ '+d.error,'error');
+}
+
+async function grantPremiumDirect(guildId){
+  openModal(`
+    <h3>👑 إعطاء بريميوم لـ ${guildId}</h3>
+    <div class="fg"><label class="fl">المدة بالأيام <small>(فارغ = دائم)</small></label><input type="number" class="fi" id="grantDays2" placeholder="30" min="1"></div>
+    <div style="display:flex;gap:10px;margin-top:16px;">
+      <button class="btn btn-gold" onclick="confirmGrant('${guildId}')" style="flex:1;">👑 تأكيد</button>
+      <button class="btn btn-g" onclick="closeModal()">إلغاء</button>
+    </div>
+  `);
+}
+
+async function confirmGrant(guildId){
+  const days=document.getElementById('grantDays2').value;
+  const r=await fetch('/api/admin/premium/grant',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({guildId,days:days?parseInt(days):null})});
+  const d=await r.json();
+  if(d.success){toast(`✅ تم إعطاء البريميوم`,'success');closeModal();loadAdmin();}
+  else toast('❌ '+d.error,'error');
+}
+
+async function revokePremium(guildId){
+  if(!confirm('هتسحب البريميوم من السيرفر ده؟'))return;
+  const r=await fetch('/api/admin/premium/revoke',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({guildId})});
+  const d=await r.json();
+  if(d.success){toast('✅ تم سحب البريميوم','success');loadAdmin();}
+  else toast('❌ '+d.error,'error');
+}
+
+// ===== MODAL =====
+function openModal(html){document.getElementById('modalContent').innerHTML=html;document.getElementById('modalOverlay').style.display='flex';}
+function closeModal(){document.getElementById('modalOverlay').style.display='none';}
+
+// ===== TOAST =====
+function toast(msg,type='success'){
+  const w=document.getElementById('toastWrap');const t=document.createElement('div');t.className=`toast ${type}`;t.textContent=msg;w.appendChild(t);
+  setTimeout(()=>{t.style.opacity='0';t.style.transition='opacity 0.4s';setTimeout(()=>t.remove(),400);},3000);
+}
+
+// ===== UTILS =====
+
+// ===== MOD COMMANDS =====
+const MOD_COMMANDS = [
+  {cmd:'ban',desc:'حظر عضو من السيرفر',usage:'!ban @user [سبب]',cat:'عقوبات',prem:false},
+  {cmd:'unban',desc:'رفع الحظر عن عضو',usage:'!unban [UserID]',cat:'عقوبات',prem:false},
+  {cmd:'kick',desc:'طرد عضو من السيرفر',usage:'!kick @user [سبب]',cat:'عقوبات',prem:false},
+  {cmd:'mute',desc:'كتم عضو لمدة محددة',usage:'!mute @user [مدة] [سبب]',cat:'عقوبات',prem:false},
+  {cmd:'unmute',desc:'رفع الكتم عن عضو',usage:'!unmute @user',cat:'عقوبات',prem:false},
+  {cmd:'warn',desc:'تحذير عضو وتسجيله',usage:'!warn @user [سبب]',cat:'تحذيرات',prem:false},
+  {cmd:'warns',desc:'عرض تحذيرات عضو',usage:'!warns @user',cat:'تحذيرات',prem:false},
+  {cmd:'clearwarns',desc:'حذف كل تحذيرات عضو',usage:'!clearwarns @user',cat:'تحذيرات',prem:false},
+  {cmd:'timeout',desc:'إيقاف عضو مؤقتاً (Discord Timeout)',usage:'!timeout @user [مدة]',cat:'عقوبات',prem:false},
+  {cmd:'untimeout',desc:'رفع الـ Timeout عن عضو',usage:'!untimeout @user',cat:'عقوبات',prem:false},
+  {cmd:'purge',desc:'حذف عدد من الرسائل',usage:'!purge [عدد]',cat:'تنظيف',prem:false},
+  {cmd:'slowmode',desc:'تفعيل الـ Slowmode في قناة',usage:'!slowmode [ثواني]',cat:'قنوات',prem:false},
+  {cmd:'lock',desc:'قفل قناة نصية',usage:'!lock [قناة]',cat:'قنوات',prem:false},
+  {cmd:'unlock',desc:'فتح قناة مقفلة',usage:'!unlock [قناة]',cat:'قنوات',prem:false},
+  {cmd:'lockall',desc:'قفل كل القنوات (حالة الطوارئ)',usage:'!lockall',cat:'قنوات',prem:true},
+  {cmd:'unlockall',desc:'فتح كل القنوات',usage:'!unlockall',cat:'قنوات',prem:true},
+  {cmd:'addrole',desc:'إعطاء رتبة لعضو',usage:'!addrole @user @role',cat:'رتب',prem:false},
+  {cmd:'removerole',desc:'سحب رتبة من عضو',usage:'!removerole @user @role',cat:'رتب',prem:false},
+  {cmd:'nick',desc:'تغيير اسم عضو في السيرفر',usage:'!nick @user [اسم جديد]',cat:'إدارة',prem:false},
+  {cmd:'announce',desc:'إرسال إعلان عبر البوت',usage:'!announce #قناة [نص]',cat:'إدارة',prem:true},
+];
+
+const GEN_COMMANDS = [
+  {cmd:'help',desc:'عرض قائمة الأوامر الكاملة',usage:'!help [أمر]',cat:'عام',prem:false},
+  {cmd:'ping',desc:'الاطلاع على سرعة استجابة البوت',usage:'!ping',cat:'معلومات',prem:false},
+  {cmd:'info',desc:'معلومات تفصيلية عن البوت',usage:'!info',cat:'معلومات',prem:false},
+  {cmd:'serverinfo',desc:'معلومات السيرفر الكاملة',usage:'!serverinfo',cat:'معلومات',prem:false},
+  {cmd:'userinfo',desc:'معلومات مفصلة عن عضو',usage:'!userinfo [@user]',cat:'معلومات',prem:false},
+  {cmd:'avatar',desc:'عرض صورة البروفايل بجودة عالية',usage:'!avatar [@user]',cat:'معلومات',prem:false},
+  {cmd:'roleinfo',desc:'معلومات عن رتبة معينة',usage:'!roleinfo @role',cat:'معلومات',prem:false},
+  {cmd:'rank',desc:'عرض مستوى وXP الخاص بك',usage:'!rank [@user]',cat:'مستويات',prem:true},
+  {cmd:'leaderboard',desc:'لوحة المتصدرين بالسيرفر',usage:'!leaderboard',cat:'مستويات',prem:true},
+  {cmd:'afk',desc:'تفعيل وضع AFK',usage:'!afk [سبب]',cat:'عام',prem:false},
+  {cmd:'report',desc:'الإبلاغ عن عضو للإدارة',usage:'!report @user [سبب]',cat:'عام',prem:false},
+  {cmd:'suggest',desc:'إرسال اقتراح للسيرفر',usage:'!suggest [اقتراحك]',cat:'مجتمع',prem:false},
+  {cmd:'poll',desc:'إنشاء تصويت',usage:'!poll [سؤال] | [خيار1] | [خيار2]',cat:'مجتمع',prem:false},
+  {cmd:'giveaway',desc:'إنشاء مسابقة',usage:'!giveaway [مدة] [جائزة]',cat:'مجتمع',prem:true},
+  {cmd:'8ball',desc:'سؤال الكرة السحرية',usage:'!8ball [سؤالك]',cat:'ترفيه',prem:false},
+  {cmd:'flip',desc:'رمي عملة (صورة/كتابة)',usage:'!flip',cat:'ترفيه',prem:false},
+  {cmd:'roll',desc:'رمي نرد برقم محدد',usage:'!roll [عدد الأوجه]',cat:'ترفيه',prem:false},
+  {cmd:'play',desc:'تشغيل موسيقى في قناة صوتية',usage:'!play [اسم/رابط]',cat:'موسيقى',prem:true},
+  {cmd:'skip',desc:'تخطي الأغنية الحالية',usage:'!skip',cat:'موسيقى',prem:true},
+  {cmd:'queue',desc:'عرض قائمة الأغاني المنتظرة',usage:'!queue',cat:'موسيقى',prem:true},
+];
+
+const CAT_COLORS = {
+  'عقوبات':'rgba(237,66,69,0.1);color:var(--red);border-color:rgba(237,66,69,0.3)',
+  'تحذيرات':'rgba(254,231,92,0.1);color:var(--yellow);border-color:rgba(254,231,92,0.3)',
+  'تنظيف':'rgba(0,212,255,0.1);color:var(--accent2);border-color:rgba(0,212,255,0.3)',
+  'قنوات':'rgba(88,101,242,0.1);color:var(--accent);border-color:rgba(88,101,242,0.3)',
+  'رتب':'rgba(124,58,237,0.1);color:#a78bfa;border-color:rgba(124,58,237,0.3)',
+  'إدارة':'rgba(87,242,135,0.1);color:var(--green);border-color:rgba(87,242,135,0.3)',
+  'معلومات':'rgba(0,212,255,0.1);color:var(--accent2);border-color:rgba(0,212,255,0.3)',
+  'مستويات':'rgba(245,167,66,0.1);color:var(--orange);border-color:rgba(245,167,66,0.3)',
+  'مجتمع':'rgba(87,242,135,0.1);color:var(--green);border-color:rgba(87,242,135,0.3)',
+  'ترفيه':'rgba(124,58,237,0.1);color:#a78bfa;border-color:rgba(124,58,237,0.3)',
+  'موسيقى':'rgba(245,167,66,0.1);color:var(--orange);border-color:rgba(245,167,66,0.3)',
+  'عام':'rgba(107,114,128,0.1);color:var(--muted);border-color:var(--border)',
+};
+
+// Custom commands overrides loaded from server
+let customCmdsData = {};
+
+function getDisplayName(c) {
+  const over = customCmdsData[c.cmd];
+  return over?.name || c.cmd;
+}
+function getDisplayDesc(c) {
+  const over = customCmdsData[c.cmd];
+  return over?.desc || c.desc;
+}
+
+function renderCmds(cmds, containerId, prefix='!') {
+  const container = document.getElementById(containerId);
+  if(!container) return;
+  container.innerHTML = cmds.map(c => {
+    const catStyle = CAT_COLORS[c.cat] || CAT_COLORS['عام'];
+    const displayName = getDisplayName(c);
+    const displayDesc = getDisplayDesc(c);
+    const isCustomized = customCmdsData[c.cmd]?.name || customCmdsData[c.cmd]?.desc;
+    const usage = c.usage.replace('!' + c.cmd, prefix + displayName);
+    return `
+    <div class="cmd-card" id="cmdcard-${c.cmd}">
+      ${c.prem ? '<div class="cmd-badge cmd-badge-prem">👑 Premium</div>' : ''}
+      ${isCustomized ? '<div class="cmd-badge" style="top:10px;right:10px;background:rgba(87,242,135,0.15);color:var(--green);border:1px solid rgba(87,242,135,0.3);font-size:0.6rem;font-weight:900;padding:2px 7px;border-radius:999px;">✏️ مخصص</div>' : ''}
+      <div id="cmdview-${c.cmd}">
+        <div class="cmd-name" style="margin-top:${c.prem||isCustomized?'22px':'0'}">⌨️ ${prefix}${displayName}</div>
+        <div class="cmd-desc" style="margin-top:5px;">${displayDesc}</div>
+        <div class="cmd-usage">${usage}</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;">
+          <span class="cmd-cat" style="background:${catStyle};">${c.cat}</span>
+          <button class="btn btn-g btn-s" style="font-size:0.72rem;padding:4px 9px;" onclick="showEditCmd('${c.cmd}','${containerId}')">✏️ تعديل</button>
+        </div>
+      </div>
+      <div id="cmdedit-${c.cmd}" style="display:none;">
+        <div class="fg" style="margin-bottom:10px;margin-top:${c.prem?'22px':'4px'}">
+          <label class="fl" style="font-size:0.78rem;">اسم الأمر <small style="color:var(--muted);">(بدون مسافات أو سلاش)</small></label>
+          <div style="display:flex;gap:7px;align-items:center;">
+            <span style="color:var(--muted);font-family:'Orbitron',monospace;font-size:0.85rem;">${prefix}</span>
+            <input type="text" class="fi" id="cmdinput-${c.cmd}"
+              value="${displayName}"
+              placeholder="${c.cmd}"
+              style="font-family:'Orbitron',monospace;font-size:0.8rem;"
+              oninput="this.value=this.value.replace(/[\\s\\/]/g,'')">
+          </div>
+        </div>
+        <div class="fg" style="margin-bottom:10px;">
+          <label class="fl" style="font-size:0.78rem;">وصف الأمر</label>
+          <input type="text" class="fi" id="cmddesc-${c.cmd}"
+            value="${displayDesc}"
+            placeholder="${c.desc}"
+            style="font-size:0.83rem;">
+        </div>
+        <div style="display:flex;gap:7px;">
+          <button class="btn btn-p btn-s" style="flex:1;justify-content:center;" onclick="saveEditCmd('${c.cmd}','${c.desc}','${containerId}')">💾 حفظ</button>
+          ${isCustomized ? `<button class="btn btn-d btn-s" onclick="resetCmd('${c.cmd}','${c.cmd}','${c.desc}','${containerId}')">↩️ إعادة تعيين</button>` : ''}
+          <button class="btn btn-g btn-s" onclick="cancelEditCmd('${c.cmd}')">✕</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function showEditCmd(cmdKey, containerId) {
+  document.getElementById('cmdview-' + cmdKey).style.display = 'none';
+  document.getElementById('cmdedit-' + cmdKey).style.display = 'block';
+  document.getElementById('cmdinput-' + cmdKey).focus();
+}
+
+function cancelEditCmd(cmdKey) {
+  document.getElementById('cmdview-' + cmdKey).style.display = 'block';
+  document.getElementById('cmdedit-' + cmdKey).style.display = 'none';
+}
+
+async function saveEditCmd(cmdKey, origDesc, containerId) {
+  const newName = document.getElementById('cmdinput-' + cmdKey).value.trim();
+  const newDesc = document.getElementById('cmddesc-' + cmdKey).value.trim();
+  if(!newName) { toast('اسم الأمر لا يمكن أن يكون فارغاً!','error'); return; }
+  if(newName.includes(' ') || newName.includes('/')) { toast('❌ الاسم بدون مسافات أو سلاش','error'); return; }
+  if(newName.length > 32) { toast('❌ الاسم أكثر من 32 حرف','error'); return; }
+  try {
+    const r = await fetch(`/api/guild/${currentGuildId}/custom-cmds`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({cmdKey, newName, newDesc: newDesc||origDesc})
+    });
+    const d = await r.json();
+    if(d.success) {
+      customCmdsData[cmdKey] = {name: newName, desc: newDesc||origDesc};
+      // re-render just this card by refreshing whole grid
+      const allCmds = containerId === 'modCmdsGrid' ? MOD_COMMANDS : GEN_COMMANDS;
+      const prefix = document.getElementById('cmdinput-' + cmdKey)?.closest('.cmd-card')?.querySelector('.cmd-name')?.textContent?.charAt(0) || currentPrefix||'!';
+      renderCmds(allCmds, containerId, currentPrefix||'!');
+      toast('✅ تم حفظ تعديل الأمر!', 'success');
+    } else { toast('❌ ' + (d.error||'خطأ'), 'error'); }
+  } catch { toast('❌ خطأ في الاتصال','error'); }
+}
+
+async function resetCmd(cmdKey, origName, origDesc, containerId) {
+  try {
+    await fetch(`/api/guild/${currentGuildId}/custom-cmds/${cmdKey}`, {method:'DELETE'});
+    delete customCmdsData[cmdKey];
+    const allCmds = containerId === 'modCmdsGrid' ? MOD_COMMANDS : GEN_COMMANDS;
+    renderCmds(allCmds, containerId, currentPrefix||'!');
+    toast('↩️ تم إعادة الأمر للاسم الأصلي','info');
+  } catch { toast('❌ خطأ','error'); }
+}
+
+let currentPrefix = '!';
+let modCmdsLoaded = false, genCmdsLoaded = false;
+
+async function loadCmdsBase() {
+  try {
+    const [prefixR, customR] = await Promise.all([
+      fetch(`/api/guild/${currentGuildId}/prefix`),
+      fetch(`/api/guild/${currentGuildId}/custom-cmds`)
+    ]);
+    const prefixD = await prefixR.json();
+    currentPrefix = prefixD.prefix || '!';
+    customCmdsData = await customR.json();
+  } catch { currentPrefix='!'; customCmdsData={}; }
+}
+
+async function loadModCmds() {
+  modCmdsLoaded = false;
+  await loadCmdsBase();
+  const panel = document.getElementById('panel-mod_cmds');
+  const card = panel.querySelector('.card');
+  // Add search if not present
+  let searchEl = document.getElementById('modCmdsSearch');
+  if(!searchEl) {
+    searchEl = document.createElement('input');
+    searchEl.type='text'; searchEl.className='cmds-search'; searchEl.id='modCmdsSearch';
+    searchEl.placeholder='🔍 ابحث عن أمر بالاسم أو الوصف...';
+    searchEl.oninput = () => {
+      const q = searchEl.value.toLowerCase();
+      const filtered = q ? MOD_COMMANDS.filter(c=>c.cmd.includes(q)||getDisplayName(c).includes(q)||c.desc.includes(q)) : MOD_COMMANDS;
+      renderCmds(filtered, 'modCmdsGrid', currentPrefix);
+    };
+    card.insertBefore(searchEl, document.getElementById('modCmdsGrid'));
+  }
+  renderCmds(MOD_COMMANDS, 'modCmdsGrid', currentPrefix);
+  modCmdsLoaded = true;
+}
+
+async function loadGenCmds() {
+  genCmdsLoaded = false;
+  await loadCmdsBase();
+  const panel = document.getElementById('panel-gen_cmds');
+  const card = panel.querySelector('.card');
+  let searchEl = document.getElementById('genCmdsSearch');
+  if(!searchEl) {
+    searchEl = document.createElement('input');
+    searchEl.type='text'; searchEl.className='cmds-search'; searchEl.id='genCmdsSearch';
+    searchEl.placeholder='🔍 ابحث عن أمر بالاسم أو الوصف...';
+    searchEl.oninput = () => {
+      const q = searchEl.value.toLowerCase();
+      const filtered = q ? GEN_COMMANDS.filter(c=>c.cmd.includes(q)||getDisplayName(c).includes(q)||c.desc.includes(q)) : GEN_COMMANDS;
+      renderCmds(filtered, 'genCmdsGrid', currentPrefix);
+    };
+    card.insertBefore(searchEl, document.getElementById('genCmdsGrid'));
+  }
+  renderCmds(GEN_COMMANDS, 'genCmdsGrid', currentPrefix);
+  genCmdsLoaded = true;
+}
+
+function addBot(guildId) {
+  if(!CLIENT_ID) {
+    toast('⚠️ لم يتم تعيين CLIENT_ID في الإعدادات!','error');
+    return;
+  }
+  const url = `https://discord.com/oauth2/authorize?client_id=${CLIENT_ID}&permissions=8&scope=bot%20applications.commands&guild_id=${guildId}`;
+  window.open(url, '_blank');
+}
+
+function copyText(txt){navigator.clipboard.writeText(txt).then(()=>toast('✅ تم النسخ','success'));}
+</script>
+</body>
+</html>
